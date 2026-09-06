@@ -13,6 +13,7 @@ class Exam extends Model
         'course_id',
         'level_id',
         'type',
+        'version_group_id',
         'points_mode',
         'uniform_points',
         'created_by',
@@ -44,6 +45,14 @@ class Exam extends Model
     public function level()
     {
         return $this->belongsTo(Level::class);
+    }
+
+    /**
+     * مجموعة النسخ اللي الامتحان ده نسخة منها (لو امتحان تحديد مستوى بأكتر من نسخة)
+     */
+    public function versionGroup()
+    {
+        return $this->belongsTo(ExamVersionGroup::class, 'version_group_id');
     }
 
     /**

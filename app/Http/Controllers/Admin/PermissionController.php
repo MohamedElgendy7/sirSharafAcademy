@@ -17,10 +17,10 @@ class PermissionController extends Controller
     public function index()
     {
         $admins = User::with('permissions')->where('role', 'admin')->orderBy('name')->get();
-        $employees = User::with('permissions')->where('role', 'user')->orderBy('name')->get();
+        // $employees = User::with('permissions')->where('role', 'user')->orderBy('name')->get();
         $permissionGroups = User::PERMISSION_GROUPS;
 
-        return view('admin.permissions.index', compact('admins', 'employees', 'permissionGroups'));
+        return view('admin.permissions.index', compact('admins', 'permissionGroups'));
     }
 
     /**

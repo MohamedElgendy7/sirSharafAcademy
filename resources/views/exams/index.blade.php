@@ -161,8 +161,8 @@
                     @forelse ($exams as $exam)
                         <tr>
                             <td>{{ $exam->title }}</td>
-                            <td>{{ $exam->course }}</td>
-                            <td>{{ $exam->level }}</td>
+                            <td>{{ App\Models\course::find($exam->course_id)->name ?? '—' }}</td>
+                            <td>{{ App\Models\level::find($exam->level_id)->name ?? '—' }}</td>
                             <td>{{ $exam->type === 'placement' ? 'تحديد مستوى' : 'عادي' }}</td>
                             <td>{{ $exam->questions_count }}</td>
                             <td>

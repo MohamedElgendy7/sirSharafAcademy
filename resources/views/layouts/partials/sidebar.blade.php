@@ -95,6 +95,12 @@
         <span class="label">الاختبارات والدرجات</span>
       </a>
     @endcan
+    @can('can_manage_materials')
+        <a href="{{route('admin.materials.index')}}" class="nav-item {{ request()->routeIs('admin.materials.*') ? 'active' : '' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+        <span class="label">مكتبة الفيديوهات والكتب</span>
+      </a>
+    @endcan
     @can('can_view_certificates')
         <a href="#" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5 17 22l-5-3-5 3 1.5-8.5"/></svg>
@@ -195,6 +201,10 @@
       <a href="{{ route('student.exam-sessions.index') }}" class="nav-item {{ request()->routeIs('student.exam-sessions.*') ? 'active' : '' }}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         <span class="label">امتحان</span>
+      </a>
+      <a href="{{ route('materials.index') }}" class="nav-item {{ request()->routeIs('materials.*') ? 'active' : '' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+        <span class="label">المكتبة</span>
       </a>
     </div>
 @endif

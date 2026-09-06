@@ -44,11 +44,52 @@
     opacity:.6;
   }
 
+  /* بانل إعدادات التفعيل (النسخة + الوقت) */
+  .activation-settings{
+    background:#fff;
+    border:1px solid var(--eqc-border, rgba(30,68,131,.3));
+    border-radius:12px;
+    padding:16px 18px;
+    margin-bottom:18px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    align-items:flex-end;
+  }
+  .activation-settings .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .activation-settings label{
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--ink-900, #0e1930);
+  }
+  .activation-settings .hint{
+    font-size:11px;
+    color:var(--ink-500, #5b6b8c);
+    font-weight:400;
+  }
+  .activation-settings select,
+  .activation-settings input[type="number"]{
+    border:1.5px solid #000;
+    border-radius:8px;
+    padding:8px 12px;
+    font-family:inherit;
+    font-size:13px;
+    min-width:220px;
+  }
+  .activation-settings input[type="number"]{
+    min-width:140px;
+  }
+
   /* الجدول - حواف مدورة من برة بس + بوردر أسود واضح لكل خلية */
   .table-wrapper{
     border:1px solid #000;
     border-radius:12px;
     overflow:hidden;
+    overflow-x:auto;
   }
 
   #students-table{
@@ -64,6 +105,7 @@
     padding:14px 20px;
     text-align:center;
     border:1px solid #000;
+    white-space:nowrap;
   }
 
   #students-table tbody td{
@@ -96,6 +138,24 @@
   }
   .status-badge.status-ended{
     background:var(--navy-900, #0b1f45);
+  }
+
+  .version-badge{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    padding:3px 10px;
+    border-radius:14px;
+    background:#fff3cd;
+    color:#8a6d00;
+  }
+
+  .time-badge{
+    font-size:12px;
+    color:var(--ink-500, #5b6b8c);
+  }
+  .time-badge.no-limit{
+    color:#8fa0c7;
   }
 
   /* زرار تفعيل فردي - أحمر */
@@ -143,12 +203,32 @@
     <div class="page-head">
         <div>
             <h4>{{ $exam->title }}</h4>
-            <small>جروب: {{ $group->name }} — مستوى {{ $exam->level }}</small>
+            <small> جروب :  {{ $group->name }} <br> كورس  : {{ App\Models\course::find($exam->course_id)->name ?? '—' }}<br> مستوى : {{ App\Models\level::find($exam->level_id)->name ?? '—' }}</small>
         </div>
 
         <button id="activate-all-btn">
             تفعيل الامتحان لكل الجروب
         </button>
+    </div>
+
+    {{-- إعدادات التفعيل: النسخة (لو الامتحان تابع لمجموعة نسخ) + الوقت المحدد --}}
+    <div class="activation-settings">
+        @if ($exam->version_group_id)
+            <div class="field">
+                <label>نسخة الامتحان</label>
+                <select id="version-select">
+                    <option value="0">استخدام هذه النسخة تحديدًا ({{ $exam->title }})</option>
+                    <option value="1">نسخة عشوائية من نفس المجموعة</option>
+                </select>
+                <span class="hint">لو اخترت "عشوائية"، السيستم هيختار نسخة مختلفة لكل طالب تلقائيًا ويسجلها في تقريره.</span>
+            </div>
+        @endif
+
+        <div class="field">
+            <label>حد أقصى للوقت (بالدقايق)</label>
+            <input type="number" id="time-limit-input" min="1" placeholder="بدون حد وقت">
+            <span class="hint">سيبها فاضية لو عايز الامتحان يفضل مفتوح من غير وقت محدد.</span>
+        </div>
     </div>
 
     @if ($students->isEmpty())
@@ -161,6 +241,10 @@
                 <tr>
                     <th>الطالب</th>
                     <th>الحالة</th>
+                    @if ($exam->version_group_id)
+                        <th>النسخة</th>
+                    @endif
+                    <th>الوقت</th>
                     <th>الكود الحالي</th>
                     <th>إجراء</th>
                 </tr>
@@ -178,6 +262,29 @@
                                 <span class="status-badge status-active">نشط</span>
                             @else
                                 <span class="status-badge status-ended">منتهي</span>
+                            @endif
+                        </td>
+
+                        @if ($exam->version_group_id)
+                            <td>
+                                @if ($session)
+                                    {{ $session->exam->title ?? '—' }}
+                                    @if ($session->is_random_version)
+                                        <br><span class="version-badge">عشوائية</span>
+                                    @endif
+                                @else
+                                    —
+                                @endif
+                            </td>
+                        @endif
+
+                        <td>
+                            @if ($session && $session->time_limit_minutes)
+                                <span class="time-badge">{{ $session->time_limit_minutes }} دقيقة</span>
+                            @elseif ($session)
+                                <span class="time-badge no-limit">بدون حد</span>
+                            @else
+                                —
                             @endif
                         </td>
 
@@ -218,13 +325,25 @@
     const examId = {{ $exam->id }};
     const groupId = {{ $group->id }};
 
-    function postJson(url) {
+    const versionSelect = document.getElementById('version-select');
+    const timeLimitInput = document.getElementById('time-limit-input');
+
+    function currentSettings() {
+        return {
+            random_version: versionSelect ? versionSelect.value === '1' : false,
+            time_limit_minutes: timeLimitInput.value ? parseInt(timeLimitInput.value, 10) : null,
+        };
+    }
+
+    function postJson(url, body = {}) {
         return fetch(APP_URL + url, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
                 'Accept': 'application/json',
+                'Content-Type': 'application/json',
             },
+            body: JSON.stringify(body),
         }).then(res => res.json().then(data => ({ ok: res.ok, data })));
     }
 
@@ -234,7 +353,7 @@
             const studentId = this.dataset.studentId;
             this.disabled = true;
 
-            postJson(`/exams/${examId}/groups/${groupId}/students/${studentId}/activate`)
+            postJson(`/exams/${examId}/groups/${groupId}/students/${studentId}/activate`, currentSettings())
                 .then(({ ok, data }) => {
                     if (!ok) {
                         alert(data.message || 'حصل خطأ');
@@ -250,7 +369,7 @@
     document.getElementById('activate-all-btn').addEventListener('click', function () {
         this.disabled = true;
 
-        postJson(`/exams/${examId}/groups/${groupId}/activate-all`)
+        postJson(`/exams/${examId}/groups/${groupId}/activate-all`, currentSettings())
             .then(({ ok, data }) => {
                 if (!ok) {
                     alert(data.message || 'حصل خطأ');

@@ -53,17 +53,6 @@
             </select>
         </div>
 
-        <div class="mb-3" id="version-group-field" style="display:none;">
-            <label class="form-label">مجموعة النسخ</label>
-            <select name="version_group_id" id="version_group_id" class="form-select">
-                <option value="">بدون مجموعة (نسخة مستقلة)</option>
-                @foreach ($versionGroups as $vg)
-                    <option value="{{ $vg->id }}" {{ (old('version_group_id', request('version_group_id'))) == $vg->id ? 'selected' : '' }}>{{ $vg->name }}</option>
-                @endforeach
-            </select>
-            <a href="{{ route('exam-version-groups.create') }}" target="_blank" class="d-inline-block mt-1" style="font-size: 12px;">+ إنشاء مجموعة جديدة</a>
-        </div>
-
         <div class="exam-grid">
             <div id="course-field">
                 <label class="form-label">الكورس</label>
@@ -115,14 +104,12 @@ function toggleCourseLevel() {
     const type = document.getElementById('type').value;
     const courseField = document.getElementById('course-field');
     const levelField = document.getElementById('level-field');
-    const versionGroupField = document.getElementById('version-group-field');
     const courseSelect = document.getElementById('course_id');
     const levelSelect = document.getElementById('level_id');
     const isPlacement = type === 'placement';
 
     courseField.style.display = isPlacement ? 'none' : 'block';
     levelField.style.display = isPlacement ? 'none' : 'block';
-    versionGroupField.style.display = isPlacement ? 'block' : 'none';
 
     courseSelect.disabled = isPlacement;
     courseSelect.required = !isPlacement;
@@ -136,12 +123,6 @@ function toggleCourseLevel() {
 }
 
 document.getElementById('type').addEventListener('change', toggleCourseLevel);
-
-// لو جاي من صفحة مجموعة نسخ معينة، النوع يتحدد "امتحان تحديد مستوى" تلقائيًا
-@if (request('version_group_id'))
-    document.getElementById('type').value = 'placement';
-@endif
-
 toggleCourseLevel();
 
 document.getElementById('course_id').addEventListener('change', function () {

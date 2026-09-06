@@ -47,7 +47,10 @@ return [
             'driver' => 'local',
             'root' => storage_path('app'),
         ],
-
+        'materials' => [
+            'driver' => 'local',
+            'root' => env('MATERIALS_DISK_ROOT', storage_path('app/materials')),
+        ],
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

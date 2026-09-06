@@ -62,4 +62,28 @@ class Student extends Model
     {
         return $this->hasMany(ExamSession::class);
     }
+
+    /**
+     * كل تسليمات الامتحانات (النتائج الفعلية بالدرجات) الخاصة بالطالب ده
+     */
+    public function examSubmissions()
+    {
+        return $this->hasMany(ExamSubmission::class);
+    }
+
+    /**
+     * كل سجلات الحضور/الغياب الخاصة بالطالب ده
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * كل تقييمات المهارات الخاصة بالطالب ده
+     */
+    public function evaluations()
+    {
+        return $this->hasMany(StudentEvaluation::class);
+    }
 }

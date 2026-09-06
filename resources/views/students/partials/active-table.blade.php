@@ -15,10 +15,10 @@
           <tr>
             <td class="name-cell">{{ $student->name }}</td>
             <td>{{ $student->phone }}</td>
-            <td>{{ $student->course ?? '—' }}</td>
-            <td>{{ $student->level ?? '—' }}</td>
+            <td>{{ $student->course ?? 'في انتظار تحديد المستوي ' }}</td>
+            <td>{{ $student->level ?? 'في انتظار تحديد المستوي' }}</td>
             <td class="action-cell">
-              <a href="{{ route('students.edit', $student) }}" class="btn btn-primary">تعديل الملف</a>
+              <a href="{{ route('students.profile', $student) }}" class="btn btn-primary"> عرض الملف</a>
             </td>
           </tr>
         @endforeach

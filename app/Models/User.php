@@ -32,6 +32,7 @@ class User extends Authenticatable
             'can_view_attendance'   => 'الحضور والغياب',
             'can_view_teachers'     => 'المعلمين',
             'can_view_exams'        => 'الاختبارات والدرجات',
+            'can_manage_materials'  => 'مكتبة الفيديوهات والكتب',
             'can_view_certificates' => 'الشهادات',
         ],
         'المالية' => [

@@ -17,6 +17,13 @@ class UpdateExamSessionsForTimerAndBugfix extends Migration
             $table->boolean('is_random_version')->default(false)->after('exam_id');
         });
 
+        // لازم نضيف index بديل يغطي exam_id الأول، لأن الـ foreign key بتاع exam_id
+        // كان معتمد على unique_active_session كـ index داعم له، فلو مسحناه على طول
+        // MySQL هيرفض لأن الـ foreign key هيفضل من غير index
+        Schema::table('exam_sessions', function (Blueprint $table) {
+            $table->index('exam_id', 'exam_sessions_exam_id_index');
+        });
+
         // حذف الـ unique constraint القديمة اللي كانت بتمنع حتى تكرار جلسات "ended"
         // (ده هو سبب باج "عنده جلسة بالفعل" بعد إنهاء الجلسة يدويًا وإعادة التفعيل)
         Schema::table('exam_sessions', function (Blueprint $table) {
@@ -29,6 +36,7 @@ class UpdateExamSessionsForTimerAndBugfix extends Migration
         Schema::table('exam_sessions', function (Blueprint $table) {
             $table->dropColumn(['time_limit_minutes', 'expires_at', 'is_random_version']);
             $table->unique(['exam_id', 'student_id', 'status'], 'unique_active_session');
+            $table->dropIndex('exam_sessions_exam_id_index');
         });
     }
 }

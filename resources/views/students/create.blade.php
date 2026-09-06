@@ -109,6 +109,11 @@
     outline:none;
     border-color:var(--red-600, #d81f26);
   }
+  .field select:disabled{
+    background:#f3f4f6;
+    color:var(--ink-500, #5b6b8c);
+    cursor:not-allowed;
+  }
   .field .error{
     color:var(--red-700, #b5171d);
     font-size:11px;
@@ -179,25 +184,21 @@
         <div class="form-grid">
           <div class="field">
             <label>الكورس المطلوب <span class="hint">(اختياري)</span></label>
-            <select name="course">
+            <select name="course" id="course-select">
               <option value="">اختر الكورس</option>
-              <option value="American Accent" @selected(old('course') == 'American Accent')>American Accent</option>
-              <option value="Business English" @selected(old('course') == 'Business English')>Business English</option>
-              <option value="General English" @selected(old('course') == 'General English')>General English</option>
-              <option value="Conversation" @selected(old('course') == 'Conversation')>Conversation</option>
-              <option value="IELTS preps" @selected(old('course') == 'IELTS preps')>IELTS preps</option>
-              <option value="TOEFL preps" @selected(old('course') == 'TOEFL preps')>TOEFL preps</option>
+              @foreach ($courses as $course)
+                <option value="{{ $course->name }}" data-course-id="{{ $course->id }}" @selected(old('course') == $course->name)>
+                  {{ $course->name }}
+                </option>
+              @endforeach
             </select>
             @error('course') <div class="error">{{ $message }}</div> @enderror
           </div>
 
           <div class="field">
             <label>المستوى</label>
-            <select name="level">
-              <option value="">اختر المستوى</option>
-              @for ($i = 1; $i <= 10; $i++)
-                <option value="{{ $i }}" @selected(old('level') == $i)>{{ $i }}</option>
-              @endfor
+            <select name="level" id="level-select" disabled>
+              <option value="">اختر الكورس الأول</option>
             </select>
             @error('level') <div class="error">{{ $message }}</div> @enderror
           </div>
@@ -269,5 +270,61 @@
   </div>
 
 </div>
+
+<script>
+(function () {
+    var APP_URL = "{{ rtrim(url('/'), '/') }}";
+    var courseSelect = document.getElementById('course-select');
+    var levelSelect = document.getElementById('level-select');
+    var oldLevel = "{{ old('level') }}";
+
+    function loadLevels(courseId, selectAfterLoad) {
+        levelSelect.disabled = true;
+        levelSelect.innerHTML = '<option value="">جاري التحميل...</option>';
+
+        if (!courseId) {
+            levelSelect.innerHTML = '<option value="">اختر الكورس الأول</option>';
+            return;
+        }
+
+        fetch(APP_URL + '/courses/' + courseId + '/levels', {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (levels) {
+            levelSelect.innerHTML = '<option value="">اختر المستوى</option>';
+
+            levels.forEach(function (level) {
+                var opt = document.createElement('option');
+                opt.value = level.name;
+                opt.textContent = level.name;
+                if (selectAfterLoad && level.name == selectAfterLoad) {
+                    opt.selected = true;
+                }
+                levelSelect.appendChild(opt);
+            });
+
+            levelSelect.disabled = false;
+        })
+        .catch(function () {
+            levelSelect.innerHTML = '<option value="">حصل خطأ في تحميل المستويات</option>';
+        });
+    }
+
+    courseSelect.addEventListener('change', function () {
+        var selectedOption = courseSelect.options[courseSelect.selectedIndex];
+        var courseId = selectedOption ? selectedOption.getAttribute('data-course-id') : null;
+        loadLevels(courseId, null);
+    });
+
+    // لو الفورم رجع بأخطاء فاليديشن (old values)، نعيد تحميل المستويات
+    // الخاصة بالكورس اللي كان متحدد قبل كده تلقائيًا
+    if (courseSelect.value) {
+        var initialOption = courseSelect.options[courseSelect.selectedIndex];
+        var initialCourseId = initialOption ? initialOption.getAttribute('data-course-id') : null;
+        loadLevels(initialCourseId, oldLevel);
+    }
+})();
+</script>
 
 @endsection

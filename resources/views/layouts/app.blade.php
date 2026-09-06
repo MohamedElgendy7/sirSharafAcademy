@@ -5,8 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>@yield('title', 'Sir Sharaf Academy — CRM')</title>
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet"><link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+{{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet"><link rel="preconnect" href="https://fonts.googleapis.com"> --}}
+<link href="{{ asset('vendor/bootstrap/bootstrap.rtl.min.css') }}" rel="stylesheet">
+<script src="{{ asset('vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+
+{{-- <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet"> --}}
+<style>
+    @font-face {
+        font-family: 'Cairo';
+        src: url('{{ asset('fonts/cairo/Cairo-VariableFont_wght.ttf') }}') format('truetype-variations');
+        font-weight: 200 1000;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'IBM Plex Sans Arabic';
+        src: url('{{ asset('fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Regular.ttf') }}') format('truetype');
+        font-weight: 400;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'IBM Plex Sans Arabic';
+        src: url('{{ asset('fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Medium.ttf') }}') format('truetype');
+        font-weight: 500;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: 'IBM Plex Sans Arabic';
+        src: url('{{ asset('fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-SemiBold.ttf') }}') format('truetype');
+        font-weight: 600;
+        font-display: swap;
+    }
+</style>
 <style>
   :root{
     --navy-950:#081533;

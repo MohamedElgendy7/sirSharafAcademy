@@ -14,12 +14,15 @@ class ExamSession extends Model
         'exam_id',
         'group_id',
         'student_id',
+        'is_random_version',
         'activated_by',
         'activated_at',
         'current_code',
         'code_generated_at',
         'started_at',
         'status',
+        'time_limit_minutes',
+        'expires_at',
         'session_data',
     ];
 
@@ -27,6 +30,8 @@ class ExamSession extends Model
         'activated_at' => 'datetime',
         'code_generated_at' => 'datetime',
         'started_at' => 'datetime',
+        'expires_at' => 'datetime',
+        'is_random_version' => 'boolean',
         'session_data' => 'array',
     ];
 
@@ -120,5 +125,39 @@ class ExamSession extends Model
     public function scopeEnded($query)
     {
         return $query->where('status', 'ended');
+    }
+
+    /**
+     * هل الجلسة ليها حد وقت أصلًا؟
+     */
+    public function hasTimeLimit(): bool
+    {
+        return ! is_null($this->time_limit_minutes);
+    }
+
+    /**
+     * هل انتهى وقت الامتحان (لو كان محدد بوقت)؟
+     */
+    public function isTimeExpired(): bool
+    {
+        if (! $this->hasTimeLimit() || ! $this->expires_at) {
+            return false;
+        }
+
+        return Carbon::now()->greaterThan($this->expires_at);
+    }
+
+    /**
+     * الوقت المتبقي بالثواني (null لو مفيش حد وقت)
+     */
+    public function getRemainingSecondsAttribute()
+    {
+        if (! $this->hasTimeLimit() || ! $this->expires_at) {
+            return null;
+        }
+
+        $remaining = Carbon::now()->diffInSeconds($this->expires_at, false);
+
+        return max(0, $remaining);
     }
 }

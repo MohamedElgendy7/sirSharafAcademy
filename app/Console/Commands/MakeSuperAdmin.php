@@ -62,7 +62,7 @@ class MakeSuperAdmin extends Command
             'is_super_admin' => true,
         ]);
         
-        return 0;
+        $this->info("account created successfully as [$user->role] with email [$user->email] under name [$user->name].");
         }
         $this->info("account created successfully as [$user->role] with email [$user->email] under name [$user->name].");
     }

@@ -125,7 +125,7 @@
                     <div class="list-group-item">
                         <div>
                             <div class="exam-title">{{ $session->exam->title }}</div>
-                            <small class="exam-level">مستوى {{ $session->exam->level }}</small>
+                            <small class="exam-level">مستوى {{App\Models\level::find($session->exam->level_id)->name ?? '—' }}</small>
                         </div>
 
                         <div>
@@ -134,14 +134,17 @@
                                     {{ $session->started_at ? 'كمّل الامتحان' : 'ابدأ الامتحان' }}
                                 </a>
                             @elseif ($session->submission)
+                            @if($session->exam->type !== 'placement')
                                 <span class="badge-score">
                                     درجتك: {{ $session->submission->score }} / {{ $session->submission->total_points }}
                                 </span>
+                                @endif
                             @else
                                 <span class="badge-finished">منتهي</span>
                             @endif
                         </div>
                     </div>
+                    
                 @endforeach
             </div>
         </div>

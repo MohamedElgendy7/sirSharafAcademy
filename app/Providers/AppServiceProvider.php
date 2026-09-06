@@ -4,6 +4,7 @@ namespace App\Providers;
 
 
 use App\Models\Student;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -51,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
                 'waitingStudentsCount' => Student::where('status', 'waiting')->count(),
             ]);
         });
+    
         
     }
 }

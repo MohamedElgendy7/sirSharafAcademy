@@ -23,11 +23,4 @@ class Course extends Model
     {
         return $this->hasMany(Exam::class);
     }
-
-    public function levelsByCourse(\App\Models\Course $course)
-{
-    return response()->json(
-        $course->levels()->orderBy('name')->get(['id', 'name'])
-    );
-}
 }
